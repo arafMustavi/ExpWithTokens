@@ -21,6 +21,88 @@ To check all the flows that started with the node, Just go to any of the four te
 
 `flow list`
 
+## Transfer tokens from one account to other 
+
+For someone who is looking into how to only transfer tokens from one account to other use below steps.
+
+
+###  Step 1
+```
+flow start CreateAndShareAccountFlow accountName: brunchA1, partyToShareAccountInfoToList: [CentralBank, BankA, BankB]
+flow start CreateAndShareAccountFlow accountName: brunchA2, partyToShareAccountInfoToList: [CentralBank, BankA]
+flow start CreateAndShareAccountFlow accountName: brunchA3, partyToShareAccountInfoToList: [CentralBank, BankA]
+```
+Run the above flow on the BankA node. This will create the brunchA1, brunchA2 and brunchA3 accounts on the BankA node and share this account info with CentralBank and BankA node
+
+Then let's go to the BankB node and create brunchB1 account: 
+```
+flow start CreateAndShareAccountFlow accountName: brunchB1, partyToShareAccountInfoToList: [CentralBank, BankB, BankA]
+flow start CreateAndShareAccountFlow accountName: brunchB2, partyToShareAccountInfoToList: [CentralBank, BankB]
+```
+
+Run the below query to confirm if accounts are created on BankA node. Also run the above query on CentralBank and BankB node to confirm if account info is shared with these nodes.
+
+    run vaultQuery contractStateType : com.r3.corda.lib.accounts.contracts.states.AccountInfo
+
+
+###  Step 2
+
+```
+start IssueCashFlow accountName : brunchA1 , currency : USD , amount : 80
+
+```
+Run the above command on the Bank node, which will issue 80 USD to brunchA1 account.
+
+###  Step 3
+```
+flow start QuerybyAccount whoAmI: brunchA1
+```
+You can check balance of brunchA1 account at BankA's node
+[Option] You can also run the below command to confirm if 80 USD fungible tokens are stored at BankA's node. The current holder field in the output will be an AnonymousParty which specifies an account.
+```
+run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.FungibleToken
+```
+
+###  Step 4
+```
+start MoveTokensBetweenAccounts senderAccountName : brunchA1, rcvAccountName : brunchB1 , currency : USD , amount : 10
+```
+This will move tokens from account brunchA1 to account brunchB1
+
+
+
+###  Step 5
+```
+flow start QuerybyAccount whoAmI: brunchA1
+```
+You can check balance of brunchA1 account at BankA's node
+```
+run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.FungibleToken
+```
+
+###  Step 6
+```
+flow start QuerybyAccount whoAmI: brunchB1
+```
+You can check balance of brunchB1 account at BankB's node
+```
+run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.FungibleToken
+```
+## Further Reading
+
+For accounts visit https://github.com/corda/accounts.
+
+For tokens visit https://github.com/corda/token-sdk.
+
+
+
+
+
+
+
+
+
+
 To issue a Token Flow:
 
 ```
